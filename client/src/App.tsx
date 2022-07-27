@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import Routes from "./routes/routes";
+import { BaseRoutes } from "./routes/routes";
 
 function App() {
   return (
     <>
-      <Routes />
+      <BaseRoutes />
     </>
   );
 }
