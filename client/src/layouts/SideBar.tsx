@@ -1,4 +1,79 @@
+import { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { shortenAddress } from "../utils/shortenAddress";
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../utils/inboxContract/inboxContract";
+
 export const SideBar = () => {
+    const [currentAccount, setCurrentAccount] = useState({ address: '', balance: 0 });
+    const [msg, setMsg] = useState('');
+
+    const getAccountInfo = async () => {
+        const { ethereum } = window;
+
+        if (!ethereum) {
+            alert("You haven't connect to MetaMask");
+            return;
+        }
+
+        const provider = new ethers.providers.Web3Provider(ethereum);
+
+        const accounts = await ethereum.request({
+            method: 'eth_requestAccounts',
+        });
+
+        let balance = await provider.getBalance(accounts[0]);
+        let bal = ethers.utils.formatEther(balance);
+
+        setCurrentAccount({ address: accounts[0], balance: parseFloat(bal) });
+    };
+
+    const createEthereumContract = () => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const transactionsContract = new ethers.Contract(
+            CONTRACT_ADDRESS,
+            CONTRACT_ABI,
+            signer
+        );
+
+        return transactionsContract;
+    };
+
+    const changeMessage = async () => {
+        var contract = createEthereumContract();
+        await contract.functions.setMessage('DEFFF');
+        var newMsg = await contract.functions.message();
+        console.log("CONCCCCCC", newMsg);
+        setMsg(newMsg);
+    }
+
+    const getMessage = async () => {
+        var contract = createEthereumContract();
+        var msg = await contract.functions.message();
+        setMsg(msg);
+    }
+
+    const setup = async () => {
+        await getAccountInfo();
+        getMessage();
+    }
+
+    useEffect(() => {
+        setup()
+    }, []);
+
+    // Listen for MetaMask change account or chain
+    useEffect(() => {
+        if (window.ethereum) {
+            window.ethereum.on('chainChanged', () => {
+                getAccountInfo();
+            });
+            window.ethereum.on('accountsChanged', () => {
+                getAccountInfo();
+            })
+        }
+    });
+
     return (<div id="side-bar" className="w-60 h-screen">
         <div className="flex">
             <div className="flex flex-col h-screen p-3 bg-gray-800 shadow w-60">
@@ -148,6 +223,20 @@ export const SideBar = () => {
                                 </button>
                             </li>
                         </ul>
+                    </div>
+                    {/* Account Info section */}
+                    <div className="text-white">
+                        <div className="flex items-center">
+                            <h2 className="text-xl font-bold">Account Info</h2>
+                        </div>
+                        <div><b>Address</b>: {shortenAddress(currentAccount.address)}</div>
+                        <div><b>Balance</b>: {currentAccount.balance}</div>
+                    </div>
+                    {/* Inbox Message */}
+                    <div className="text-white">
+                        <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={changeMessage}>Set Message</button>
+
+                        <div>current message: {msg}</div>
                     </div>
                 </div>
             </div>
