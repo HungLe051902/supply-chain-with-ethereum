@@ -1,9 +1,34 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { shortenAddress } from "../utils/shortenAddress";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../utils/inboxContract/inboxContract";
 
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+
 export const SideBar = () => {
+    const { ethereum } = window;
+    if (!ethereum) alert('Please connect to MetaMask')
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    provider.on("MessageChanged", (newMsg: string) => {
+        console.log("NEW MESSAGE", newMsg)
+    });
+
+    const [open, setOpen] = React.useState(false);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const [msgPopup, setMsgPopup] = useState('');
+
     const [currentAccount, setCurrentAccount] = useState({ address: '', balance: 0 });
     const [msg, setMsg] = useState('');
 
@@ -28,7 +53,6 @@ export const SideBar = () => {
     };
 
     const createEthereumContract = () => {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const transactionsContract = new ethers.Contract(
             CONTRACT_ADDRESS,
@@ -41,14 +65,26 @@ export const SideBar = () => {
 
     const changeMessage = async () => {
         var contract = createEthereumContract();
-        await contract.functions.setMessage('DEFFF');
-        var newMsg = await contract.functions.message();
-        console.log("CONCCCCCC", newMsg);
-        setMsg(newMsg);
+        await contract.functions.setMessage(msgPopup);
+
+        contract.on("MessageChanged", (newMsg: string) => {
+            setMsg(newMsg);
+        });
+    }
+
+    const handleChange = () => {
+        console.log("handle hahaha", msgPopup);
+        changeMessage();
+    }
+
+    const onChangeInput = (e: any) => {
+        setMsgPopup(e.target.value);
     }
 
     const getMessage = async () => {
         var contract = createEthereumContract();
+        console.log("CONTRACT", contract);
+        
         var msg = await contract.functions.message();
         setMsg(msg);
     }
@@ -237,6 +273,32 @@ export const SideBar = () => {
                         <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={changeMessage}>Set Message</button>
 
                         <div>current message: {msg}</div>
+                    </div>
+                    {/* Dialog */}
+                    <div>
+                        <Button variant="outlined" onClick={handleClickOpen}>
+                            Open form dialog
+                        </Button>
+                        <Dialog open={open} onClose={handleClose}>
+                            <DialogTitle>Change Message</DialogTitle>
+                            <DialogContent>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="name"
+                                    label="Message"
+                                    type="email"
+                                    fullWidth
+                                    variant="standard"
+                                    value={msgPopup}
+                                    onChange={onChangeInput}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleClose}>Cancel</Button>
+                                <Button onClick={handleChange}>Change</Button>
+                            </DialogActions>
+                        </Dialog>
                     </div>
                 </div>
             </div>
