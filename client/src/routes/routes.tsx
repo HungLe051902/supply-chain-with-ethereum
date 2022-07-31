@@ -7,6 +7,7 @@ import {
 import { FeatureA } from "../components/FeatureA";
 import { FeatureB } from "../components/FeatureB";
 import { ConnectToWallet } from "../components/ConnectToWallet";
+import { InboxMessage } from "../components/InboxMessage";
 
 const BaseRoutes = () => {
     return (
@@ -15,6 +16,7 @@ const BaseRoutes = () => {
             <Route path="/home" element={<HomePage />}>
                 <Route path="feature_a" element={<FeatureA />} />
                 <Route path="feature_b" element={<FeatureB />} />
+                <Route path="inbox" element={<InboxMessage />} />
             </Route>
         </Routes>
     );

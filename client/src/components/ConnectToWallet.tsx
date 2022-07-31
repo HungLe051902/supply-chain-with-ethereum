@@ -34,7 +34,7 @@ export const ConnectToWallet = () => {
             provider = new ethers.providers.Web3Provider(ethereum);
         }
         else {
-            alert("Haven't install Metamask");
+            sethaveMetamask(false);
         }
     }, []);
 
@@ -89,19 +89,19 @@ export const ConnectToWallet = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div>Not thing</div>
+                            <div className="text-sm mb-2">Haven't connected</div>
                         )}
 
                         {isConnected ? (
                             <p className="info">🎉 Connected Successfully</p>
                         ) : (
-                            <button className="btn" onClick={connectWallet}>
-                                Connect
+                            <button className="btn border p-2 rounded-xl hover:bg-violet-600" onClick={connectWallet}>
+                                Connect to MetaMask
                             </button>
                         )}
                     </div>
                 ) : (
-                    <p>Please Install MataMask</p>
+                    <p>Please install MataMask</p>
                 )}
             </header>
         </div>

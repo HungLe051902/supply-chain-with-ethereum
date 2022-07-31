@@ -13,10 +13,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 export const SideBar = () => {
     const { ethereum } = window;
     if (!ethereum) alert('Please connect to MetaMask')
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    provider.on("MessageChanged", (newMsg: string) => {
-        console.log("NEW MESSAGE", newMsg)
-    });
+    // eslint-disable-next-line
+    const provider = new ethers.providers.Web3Provider(ethereum);
 
     const [open, setOpen] = React.useState(false);
 
@@ -73,7 +71,6 @@ export const SideBar = () => {
     }
 
     const handleChange = () => {
-        console.log("handle hahaha", msgPopup);
         changeMessage();
     }
 
@@ -96,6 +93,7 @@ export const SideBar = () => {
 
     useEffect(() => {
         setup()
+     // eslint-disable-next-line
     }, []);
 
     // Listen for MetaMask change account or chain
@@ -274,7 +272,7 @@ export const SideBar = () => {
 
                         <div>current message: {msg}</div>
                     </div>
-                    {/* Dialog */}
+                    {/* Dialog Set Message*/}
                     <div>
                         <Button variant="outlined" onClick={handleClickOpen}>
                             Open form dialog
