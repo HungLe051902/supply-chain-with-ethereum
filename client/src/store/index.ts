@@ -1,12 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import counterReducer from 'features/counter/counterSlice'
+import walletReducer from 'store/walletSlice'
 
 const store = configureStore({
   reducer: {
     counter: counterReducer,
-    // posts: postsReducer,
-    // comments: commentsReducer,
-    // users: usersReducer
+    wallet: walletReducer
   }
 })
 

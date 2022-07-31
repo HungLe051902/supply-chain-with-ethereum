@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useNavigate } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from 'store/hooks'
+import { saveWalletInfo } from 'store/walletSlice'
 
 const { ethereum } = window;
 
@@ -11,6 +13,8 @@ export const ConnectToWallet = () => {
     const [accountAddress, setAccountAddress] = useState('');
     const [accountBalance, setAccountBalance] = useState('');
     const [isConnected, setIsConnected] = useState(false);
+
+    const dispatch = useAppDispatch()
     // const [provider, setProvider] = useState(null);
 
     // if (!ethereum) {
@@ -62,6 +66,12 @@ export const ConnectToWallet = () => {
             setAccountAddress(accounts[0]);
             setAccountBalance(bal);
             setIsConnected(true);
+
+            dispatch(saveWalletInfo({
+                provider,
+                accountAddress: accounts[0],
+                balance: parseFloat(bal)
+            }))
 
             navigate("../home", { replace: true });
         } catch (error) {

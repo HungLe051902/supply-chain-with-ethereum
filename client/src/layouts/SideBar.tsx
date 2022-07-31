@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { shortenAddress } from "../utils/shortenAddress";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../utils/inboxContract/inboxContract";
+import { getWalletInfo } from "utils/wallet";
+import { useNavigate } from "react-router-dom";
 
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -10,11 +12,23 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { useAppSelector, useAppDispatch } from 'store/hooks';
+import { saveWalletInfo } from 'store/walletSlice'
+
 export const SideBar = () => {
+    let navigate = useNavigate();
+    const dispatch = useAppDispatch()
+
     const { ethereum } = window;
-    if (!ethereum) alert('Please connect to MetaMask')
+    if (!ethereum) {
+        alert('Please connect to MetaMask');
+        navigate("../", { replace: true });
+    }
     // eslint-disable-next-line
-    const provider = new ethers.providers.Web3Provider(ethereum);
+
+    const provider = useAppSelector((state) => state.wallet.provider)
+    const accAddress = useAppSelector((state) => state.wallet.accountAddress)
+    const accBalance = useAppSelector((state) => state.wallet.balance)
 
     const [open, setOpen] = React.useState(false);
 
@@ -80,29 +94,41 @@ export const SideBar = () => {
 
     const getMessage = async () => {
         var contract = createEthereumContract();
-        
+
         var msg = await contract.functions.message();
         setMsg(msg);
     }
 
     const setup = async () => {
-        await getAccountInfo();
-        getMessage();
+        if (!provider) {
+            navigate("../", { replace: true });
+        }
     }
 
     useEffect(() => {
         setup()
-     // eslint-disable-next-line
+        // eslint-disable-next-line
     }, []);
 
     // Listen for MetaMask change account or chain
     useEffect(() => {
         if (window.ethereum) {
-            window.ethereum.on('chainChanged', () => {
-                getAccountInfo();
+            window.ethereum.on('chainChanged', async () => {
+                // getAccountInfo();
+                const walletInfo: any = await getWalletInfo(window.ethereum);
+                dispatch(saveWalletInfo({
+                    provider: walletInfo.provider,
+                    accountAddress: walletInfo.account,
+                    balance: walletInfo.balance
+                }))
             });
-            window.ethereum.on('accountsChanged', () => {
-                getAccountInfo();
+            window.ethereum.on('accountsChanged', async () => {
+                const walletInfo: any = await getWalletInfo(window.ethereum);
+                dispatch(saveWalletInfo({
+                    provider: walletInfo.provider,
+                    accountAddress: walletInfo.account,
+                    balance: walletInfo.balance
+                }))
             })
         }
     });
@@ -262,8 +288,8 @@ export const SideBar = () => {
                         <div className="flex items-center">
                             <h2 className="text-xl font-bold">Account Info</h2>
                         </div>
-                        <div><b>Address</b>: {shortenAddress(currentAccount.address)}</div>
-                        <div><b>Balance</b>: {currentAccount.balance}</div>
+                        <div><b>Address</b>: {shortenAddress(accAddress)}</div>
+                        <div><b>Balance</b>: {accBalance}</div>
                     </div>
                     {/* Inbox Message */}
                     <div className="text-white">
