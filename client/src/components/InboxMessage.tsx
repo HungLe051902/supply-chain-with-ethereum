@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "src/utils/inboxContract/inboxContract";
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from "utils/inboxContract/inboxContract";
 
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -61,8 +61,23 @@ export const InboxMessage = () => {
         return transactionsContract;
     };
 
+    const getMessage = async () => {
+        var contract = createEthereumContract();
+        
+        var msg = await contract.functions.message();
+        setMsg(msg);
+    }
+
+    useEffect(() => {
+        getMessage();
+    }, [])
+
     return (
         <div id="inbox-message">
+            {/* Message */}
+            <div className="mb-3">
+                <div><b>Message:</b> {msg}</div>
+            </div>
             {/* Dialog Set Message*/}
             <div>
                 <Button variant="outlined" onClick={handleClickOpen}>
