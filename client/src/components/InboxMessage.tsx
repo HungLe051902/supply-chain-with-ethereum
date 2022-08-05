@@ -63,7 +63,7 @@ export const InboxMessage = () => {
 
     const getMessage = async () => {
         var contract = createEthereumContract();
-        
+
         var msg = await contract.functions.message();
         setMsg(msg);
     }

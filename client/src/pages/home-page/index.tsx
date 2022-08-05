@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 export const HomePage = () => {
     return (<div id="home-page" className="w-screen h-screen flex">
         <SideBar />
-        <div id="main-content" className="w-full">
+        <div id="main-content" className="w-full overflow-auto">
             <TopBar />
             <div className="p-4">
                 <Outlet />

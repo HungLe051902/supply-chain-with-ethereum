@@ -41,28 +41,7 @@ export const SideBar = () => {
     };
     const [msgPopup, setMsgPopup] = useState('');
 
-    const [currentAccount, setCurrentAccount] = useState({ address: '', balance: 0 });
     const [msg, setMsg] = useState('');
-
-    const getAccountInfo = async () => {
-        const { ethereum } = window;
-
-        if (!ethereum) {
-            alert("You haven't connect to MetaMask");
-            return;
-        }
-
-        const provider = new ethers.providers.Web3Provider(ethereum);
-
-        const accounts = await ethereum.request({
-            method: 'eth_requestAccounts',
-        });
-
-        let balance = await provider.getBalance(accounts[0]);
-        let bal = ethers.utils.formatEther(balance);
-
-        setCurrentAccount({ address: accounts[0], balance: parseFloat(bal) });
-    };
 
     const createEthereumContract = () => {
         const signer = provider.getSigner();
@@ -92,17 +71,10 @@ export const SideBar = () => {
         setMsgPopup(e.target.value);
     }
 
-    const getMessage = async () => {
-        var contract = createEthereumContract();
-
-        var msg = await contract.functions.message();
-        setMsg(msg);
-    }
-
     const setup = async () => {
-        if (!provider) {
-            navigate("../", { replace: true });
-        }
+        // if (!provider) {
+        //     navigate("../", { replace: true });
+        // }
     }
 
     useEffect(() => {
@@ -114,7 +86,6 @@ export const SideBar = () => {
     useEffect(() => {
         if (window.ethereum) {
             window.ethereum.on('chainChanged', async () => {
-                // getAccountInfo();
                 const walletInfo: any = await getWalletInfo(window.ethereum);
                 dispatch(saveWalletInfo({
                     provider: walletInfo.provider,
@@ -290,38 +261,6 @@ export const SideBar = () => {
                         </div>
                         <div><b>Address</b>: {shortenAddress(accAddress)}</div>
                         <div><b>Balance</b>: {accBalance}</div>
-                    </div>
-                    {/* Inbox Message */}
-                    <div className="text-white">
-                        <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={changeMessage}>Set Message</button>
-
-                        <div>current message: {msg}</div>
-                    </div>
-                    {/* Dialog Set Message*/}
-                    <div>
-                        <Button variant="outlined" onClick={handleClickOpen}>
-                            Open form dialog
-                        </Button>
-                        <Dialog open={open} onClose={handleClose}>
-                            <DialogTitle>Change Message</DialogTitle>
-                            <DialogContent>
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="name"
-                                    label="Message"
-                                    type="email"
-                                    fullWidth
-                                    variant="standard"
-                                    value={msgPopup}
-                                    onChange={onChangeInput}
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button onClick={handleChange}>Change</Button>
-                            </DialogActions>
-                        </Dialog>
                     </div>
                 </div>
             </div>
