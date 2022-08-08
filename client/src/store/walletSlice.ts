@@ -20,8 +20,6 @@ export const walletSlice = createSlice({
   initialState,
   reducers: {
     saveWalletInfo: (state, action: PayloadAction<any>) => {
-        console.log("vào updateContract nhé");
-        
       state.provider = action.payload.provider;
       state.accountAddress = action.payload.accountAddress;
       state.balance = action.payload.balance;

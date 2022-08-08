@@ -1,80 +1,40 @@
-import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import React, { useEffect } from "react";
 import { shortenAddress } from "../utils/shortenAddress";
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../utils/inboxContract/inboxContract";
-import { getWalletInfo } from "utils/wallet";
-import { useNavigate } from "react-router-dom";
-
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
+import { getWalletInfo } from "utils/smartContract";
+// import { useNavigate } from "react-router-dom";
 
 import { useAppSelector, useAppDispatch } from 'store/hooks';
 import { saveWalletInfo } from 'store/walletSlice'
 
 export const SideBar = () => {
-    let navigate = useNavigate();
+    // let navigate = useNavigate();
     const dispatch = useAppDispatch()
 
-    const { ethereum } = window;
-    if (!ethereum) {
-        alert('Please connect to MetaMask');
-        navigate("../", { replace: true });
-    }
+    // const { ethereum } = window;
+    // if (!ethereum) {
+    //     alert('Please connect to MetaMask');
+    //     navigate("../", { replace: true });
+    // }
     // eslint-disable-next-line
 
     const provider = useAppSelector((state) => state.wallet.provider)
     const accAddress = useAppSelector((state) => state.wallet.accountAddress)
     const accBalance = useAppSelector((state) => state.wallet.balance)
 
-    const [open, setOpen] = React.useState(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-    const [msgPopup, setMsgPopup] = useState('');
-
-    const [msg, setMsg] = useState('');
-
-    const createEthereumContract = () => {
-        const signer = provider.getSigner();
-        const transactionsContract = new ethers.Contract(
-            CONTRACT_ADDRESS,
-            CONTRACT_ABI,
-            signer
-        );
-
-        return transactionsContract;
-    };
-
-    const changeMessage = async () => {
-        var contract = createEthereumContract();
-        await contract.functions.setMessage(msgPopup);
-
-        contract.on("MessageChanged", (newMsg: string) => {
-            setMsg(newMsg);
-        });
-    }
-
-    const handleChange = () => {
-        changeMessage();
-    }
-
-    const onChangeInput = (e: any) => {
-        setMsgPopup(e.target.value);
+    const resetWalletInfo = async () => {
+        const walletInfo: any = await getWalletInfo(window.ethereum);
+        dispatch(saveWalletInfo({
+            provider: walletInfo.provider,
+            accountAddress: walletInfo.account,
+            balance: walletInfo.balance
+        }))
     }
 
     const setup = async () => {
-        // if (!provider) {
-        //     navigate("../", { replace: true });
-        // }
+        if (!provider) {
+            // navigate("../", { replace: true });
+            resetWalletInfo();
+        }
     }
 
     useEffect(() => {
@@ -86,20 +46,10 @@ export const SideBar = () => {
     useEffect(() => {
         if (window.ethereum) {
             window.ethereum.on('chainChanged', async () => {
-                const walletInfo: any = await getWalletInfo(window.ethereum);
-                dispatch(saveWalletInfo({
-                    provider: walletInfo.provider,
-                    accountAddress: walletInfo.account,
-                    balance: walletInfo.balance
-                }))
+                resetWalletInfo();
             });
             window.ethereum.on('accountsChanged', async () => {
-                const walletInfo: any = await getWalletInfo(window.ethereum);
-                dispatch(saveWalletInfo({
-                    provider: walletInfo.provider,
-                    accountAddress: walletInfo.account,
-                    balance: walletInfo.balance
-                }))
+                resetWalletInfo();
             })
         }
     });

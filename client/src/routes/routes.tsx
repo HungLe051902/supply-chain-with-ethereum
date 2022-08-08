@@ -10,6 +10,7 @@ import { ConnectToWallet } from "../components/ConnectToWallet";
 import { InboxMessage } from "../components/InboxMessage";
 import { Counter } from "features/counter/Counter";
 import { UploadIPFSFile } from "components/UploadIPFSFile";
+import { Guideline } from "components/testComponents/Guideline";
 
 const BaseRoutes = () => {
     return (
@@ -21,6 +22,7 @@ const BaseRoutes = () => {
                 <Route path="inbox" element={<InboxMessage />} />
                 <Route path="counter" element={<Counter />} />
                 <Route path="ipfs" element={<UploadIPFSFile />} />
+                <Route path="guideline" element={<Guideline />} />
             </Route>
         </Routes>
     );

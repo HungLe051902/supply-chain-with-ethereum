@@ -9,6 +9,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { createEthereumContract } from 'utils/smartContract';
+
 export const InboxMessage = () => {
     /**
      * State region
@@ -42,7 +44,7 @@ export const InboxMessage = () => {
     }
 
     const changeMessage = async () => {
-        var contract = createEthereumContract();
+        var contract = createContract();
         await contract.functions.setMessage(msgPopup);
 
         contract.on("MessageChanged", (newMsg: string) => {
@@ -50,19 +52,13 @@ export const InboxMessage = () => {
         });
     }
 
-    const createEthereumContract = () => {
+    const createContract = () => {
         const signer = provider.getSigner();
-        const transactionsContract = new ethers.Contract(
-            CONTRACT_ADDRESS,
-            CONTRACT_ABI,
-            signer
-        );
-
-        return transactionsContract;
+        return createEthereumContract(signer, CONTRACT_ABI, CONTRACT_ADDRESS);
     };
 
     const getMessage = async () => {
-        var contract = createEthereumContract();
+        var contract = createContract();
 
         var msg = await contract.functions.message();
         setMsg(msg);

@@ -15,3 +15,13 @@ export const getWalletInfo = async (ethereum) => {
         balance: parseFloat(bal)
     }
 }
+
+export const createEthereumContract = (signer, contractAbi, contractAddress) => {
+    const transactionsContract = new ethers.Contract(
+        contractAddress,
+        contractAbi,
+        signer
+    );
+
+    return transactionsContract;
+};
